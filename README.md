@@ -55,6 +55,7 @@ The application is configured to automatically start the `booksImportJob` on lau
 
 ## Option 2: From JAR
 ```bash
+./gradlew bootJar
 java -jar ./build/libs/batchImporter-0.0.1-SNAPSHOT.jar
 ```
 
