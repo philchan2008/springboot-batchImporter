@@ -6,6 +6,7 @@ This Spring Boot + Spring Batch application loads book data from a CSV file into
 
 ## 🛠 Project Structure
 
+```
 project-root/ 
 ├── src/                  # Spring Boot + Batch source code 
 ├── sql/                  # SQL scripts for schema setup 
@@ -14,6 +15,7 @@ project-root/
 │   └── docker-compose.yml 
 ├── build/libs/           # Compiled JAR output 
 └── README.md
+```
 
 ---
 
