@@ -38,6 +38,7 @@ Run the SQL script to create the required schema:
 ```sql
 sqlcmd -S localhost -U sa -P P@ssw0rd1234 -i sql/schema.sql
 ```
+To configure batch metadata tables for different database platforms, consult the templates provided in the Spring Batch core module on GitHub.
 
 Update credentials if needed in docker-compose.yml.
 

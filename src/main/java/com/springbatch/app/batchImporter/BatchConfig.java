@@ -2,6 +2,7 @@
 package com.springbatch.app.batchImporter;
 
 import java.net.MalformedURLException;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -19,6 +20,7 @@ import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilde
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.UrlResource;
@@ -30,18 +32,8 @@ import org.springframework.stereotype.Component;
 @EnableBatchProcessing
 public class BatchConfig {
 
-	@Bean
-	public DataSource dataSource() {
-		DriverManagerDataSource dataSource = new DriverManagerDataSource();
-		dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-		dataSource.setUrl("jdbc:sqlserver://localhost:1433;databaseName=demo;encrypt=false;trustServerCertificate=true");
-        //dataSource.setUrl("jdbc:postgresql://localhost:5432/book");
-		// Set username and password if needed
-		//dataSource.setUsername("admin");
-        dataSource.setUsername("sa");
-		dataSource.setPassword("P@ssw0rd1234");
-		return dataSource;
-	}
+    @Autowired
+    private DataSource dataSource;
 
 	@Bean
 	public FlatFileItemReader<BookRecord> booksReader() throws MalformedURLException {
@@ -65,18 +57,17 @@ public class BatchConfig {
 
         @Override
         public BookRecord process(BookRecord book) throws Exception {
-            // Basic validation
-            // if (book.getIsbn() == null) {
-            //     return null; // Skip invalid rows
+            // // Basic validation
+            // Integer bookId = book.getBookId();
+            // if (bookId == null || bookId == 0) {
+            //      return null; // Skip invalid rows
             // }
 
             // Trim and normalize fields
             book.setTitle(capitalize(book.getTitle()));
             book.setLanguage(book.getLanguage() != null ? book.getLanguage().toLowerCase() : null);
             book.setIsbn(book.getIsbn() != null ? book.getIsbn().trim() : null);
-
-            System.out.println("Processing book: " + book.getTitle());
-
+            book.setDescription(book.getDescription().length()>255?book.getDescription().substring(0,255): book.getDescription());
             return book;
         }
 
@@ -92,8 +83,10 @@ public class BatchConfig {
 	public JdbcBatchItemWriter<BookRecord> booksWriter(DataSource dataSource) {
 		return new JdbcBatchItemWriterBuilder<BookRecord>()
 				.itemSqlParameterSourceProvider(new org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider<>())
-				.sql("INSERT INTO books (bookId, title, author, rating, description, language, isbn, bookFormat, edition, pages, publisher, publishDate, firstPublishDate, likedPercent, price) " +
-						"VALUES (:bookId, :title, :author, :rating, :description, :language, :isbn, :bookFormat, :edition, :pages, :publisher, :publishDate, :firstPublishDate, :likedPercent, :price)")
+				.sql("INSERT INTO books (title, author, rating, description, language, isbn, book_format, edition, pages, publisher, publish_date, first_publish_date, liked_percent, price) " +
+						"VALUES (:title, :author, :rating, :description, :language, :isbn, :bookFormat, :edition, :pages, :publisher, :publishDate, :firstPublishDate, :likedPercent, :price)")
+				//.sql("INSERT INTO books (book_id, title, author, rating, description, language, isbn, book_format, edition, pages, publisher, publish_date, first_publish_date, liked_percent, price) " +
+				//		"VALUES (:bookId, :title, :author, :rating, :description, :language, :isbn, :bookFormat, :edition, :pages, :publisher, :publishDate, :firstPublishDate, :likedPercent, :price)")
 				.dataSource(dataSource)
 				.build();
 	}
@@ -103,12 +96,12 @@ public class BatchConfig {
                            JdbcTransactionManager transactionManager,
                            FlatFileItemReader<BookRecord> booksReader,
                            JdbcBatchItemWriter<BookRecord> booksWriter) {
-
         Step booksImportStep = new StepBuilder("booksImportStep", jobRepository)
             .<BookRecord, BookRecord>chunk(1000, transactionManager)
             .reader(booksReader)
             .processor(new BookRecordProcessor())
             .writer(booksWriter)
+            //.listener(new BookInsertListener(dataSource)) //For Identity_Insert
             .build();
 
         return new JobBuilder("booksImportJob", jobRepository)

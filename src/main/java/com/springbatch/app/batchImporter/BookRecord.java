@@ -1,7 +1,7 @@
 package com.springbatch.app.batchImporter;
 
 public class BookRecord {
-    private int bookId;
+    private int book_id;
     private String title;
     private String author;
     private double rating;
@@ -18,8 +18,8 @@ public class BookRecord {
     private double price;
 
     // Getters and setters
-    public int getBookId() { return bookId; }
-    public void setBookId(int bookId) { this.bookId = bookId; }
+    public int getBookId() { return book_id; }
+    public void setBookId(int bookId) { this.book_id = book_id; }
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
