@@ -1,6 +1,20 @@
 # 📘 Spring Batch CSV Importer
 
-This Spring Boot + Spring Batch application loads book data from a CSV file into a SQL Server database. It includes SQL scripts for schema setup and Docker configuration to spin up the database locally.
+Spring Batch is mature, battle-tested framework designed for robust, scalable batch processing, and it still shines in modern enterprise environments where large-scale data handling is critical.
+Here’s how it holds up:
+✅ Why Spring Batch is still relevant
+- Chunk-oriented processing: Efficiently handles massive datasets without blowing up memory.
+- Retry, skip, and fault tolerance: Built-in mechanisms for handling bad records or transient failures.
+- Declarative job configuration: Clear separation of steps, readers, processors, and writers.
+- Parallel and partitioned execution: Scales across threads or nodes for high throughput.
+- Integration with Spring ecosystem: Plays nicely with Spring Boot, Spring Data, and scheduling tools like Quartz.
+
+🆕 Modern alternatives (depending on use case)
+- Apache Beam or Spark for distributed data processing
+- Airflow or Dagster for orchestrating complex workflows
+- Spring Cloud Data Flow if you want to scale Spring Batch jobs as microservices
+
+This Spring Boot + Spring Batch application loads books data from a CSV file into a SQL Server database. It includes SQL scripts for schema setup and Docker configuration to spin up the database locally.
 
 ---
 
